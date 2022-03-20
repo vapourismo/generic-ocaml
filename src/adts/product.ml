@@ -45,7 +45,7 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
 
     type 'a dest = 'a Dest.t
 
-    type 'r mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
+    type mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
 
     let map mapper value =
       let rec go : type xs r. xs t -> (xs Dest.t -> r) -> r =
@@ -129,7 +129,7 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
 
     type 'a dest = 'a Dest.t
 
-    type 'r mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
+    type mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
 
     let map mapper values =
       Dest.Unsafe.of_any_array
