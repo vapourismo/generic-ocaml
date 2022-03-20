@@ -74,3 +74,37 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
     let select handler sum product = Sum.fold (make_folder handler product) sum
   end
 end
+
+module MakeFast (Wrapper : Wrappers.S) :
+  Signatures.Product with type 'a wrapper = 'a Wrapper.t = struct
+  type 'a wrapper = 'a Wrapper.t
+
+  type any = Any : 'a wrapper -> any
+
+  type _ t = any array
+
+  let nil = Array.of_list []
+
+  let cons x xs = Array.append (Array.make 1 (Any x)) xs
+
+  let ( ** ) = cons
+
+  type ('xs, 'r) folder =
+    { on_nil : ('xs, void) refl -> 'r
+    ; on_cons : 'y 'ys. ('xs, 'y * 'ys) refl -> 'y wrapper -> ('ys, 'r) folder
+    }
+
+  let fold : type xs r. (xs, r) folder -> xs t -> r =
+   fun folder values ->
+     let length = Array.length values in
+     let rec go : type ys. int -> (ys, r) folder -> r =
+      fun offset folder ->
+        if offset >= length
+        then folder.on_nil (Obj.magic Refl)
+        else (
+          let (Any wrapper) = Array.unsafe_get values offset in
+          go (offset + 1) (folder.on_cons (Obj.magic Refl) wrapper))
+     in
+     go 0 folder
+ ;;
+end
