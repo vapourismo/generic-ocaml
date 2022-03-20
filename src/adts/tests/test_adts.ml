@@ -45,6 +45,34 @@ let test_product_fold (module Make : Product.Maker) () =
   check int "sums must be equal" 154 sum
 ;;
 
+let test_product_traverse (module Make : Product.Maker) () =
+  let module P =
+    Make (Wrappers.Const (struct
+      type t = int
+    end))
+  in
+  let module U = Product.Utils (P) in
+  let module Effect = struct
+    type 'a t = int * 'a
+
+    let pure x = 0, x
+
+    let combine f (l, x) (r, y) = l + r, f x y
+
+    let one x = 1, x
+  end
+  in
+  let module Traversal = P.MakeTraversal (P) (Effect) in
+  let value = P.(13 ** 37 ** 73 ** 31 ** nil) in
+  let steps, final = Traversal.traverse { run = (fun x -> Effect.one (x * 2)) } value in
+  check int "steps must be equal" 4 steps;
+  let sum =
+    let extract : int -> int = Fun.id in
+    U.fold_left { extract } 0 (fun x y -> x + y) final
+  in
+  check int "sums must be equal" 308 sum
+;;
+
 let test_sum_tag (module Make : Sum.Maker) () =
   let module S = Make (Wrappers.Unit) in
   let sum = S.zero () in
@@ -141,7 +169,13 @@ let product_fold_tests =
   flavoured_test_case (module P) "fold" (test_product_fold (module P.Make))
 ;;
 
-let product_tests = product_select_tests @ product_fold_tests
+let product_traverse_tests =
+  product_tests
+  @@ fun (module P) ->
+  flavoured_test_case (module P) "traverse" (test_product_traverse (module P.Make))
+;;
+
+let product_tests = product_select_tests @ product_fold_tests @ product_traverse_tests
 
 let sum_tests =
   sum_tests

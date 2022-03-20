@@ -70,6 +70,25 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
     ;;
   end
 
+  module MakeTraversal (Dest : Signatures.ProductBase) (Effect : Signatures.Applicative) =
+  struct
+    type 'a src = 'a t
+
+    type 'a dest = 'a Dest.t
+
+    type 'a effect = 'a Effect.t
+
+    type mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper effect }
+
+    let traverse mapper values =
+      let rec go : type xs. xs src -> xs dest effect = function
+        | Nil -> Effect.pure Dest.nil
+        | Cons (x, xs) -> Effect.(combine Dest.cons (mapper.run x) (go xs))
+      in
+      go values
+    ;;
+  end
+
   module MakeSelect (Sum : Signatures.Sum) = struct
     type 'a handler = { run : 'x. 'x Sum.wrapper -> 'x wrapper -> 'a }
 
@@ -153,6 +172,40 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
     ;;
   end
 
+  module MakeTraversal (Dest : Signatures.ProductBase) (Effect : Signatures.Applicative) =
+  struct
+    type 'a src = 'a t
+
+    type 'a dest = 'a Dest.t
+
+    type 'a effect = 'a Effect.t
+
+    type mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper effect }
+
+    let traverse mapper values =
+      let len = Array.length values in
+      if len > 0
+      then (
+        let (Any wrapper) = Array.unsafe_get values 0 in
+        let rec go offset =
+          if offset >= len
+          then Effect.pure Fun.id
+          else (
+            let (Any wrapper) = Array.unsafe_get values offset in
+            let with_new_wrapper new_wrapper continue dest =
+              Array.unsafe_set dest offset (Dest.Any new_wrapper);
+              continue dest
+            in
+            Effect.(combine with_new_wrapper (mapper.run wrapper) (go (offset + 1))))
+        in
+        let bundle new_wrapper with_dest =
+          Array.make len (Dest.Any new_wrapper) |> with_dest |> Dest.Unsafe.of_any_array
+        in
+        Effect.(combine bundle (mapper.run wrapper) (go 1)))
+      else Effect.pure (Dest.Unsafe.of_any_array (Array.of_list []))
+    ;;
+  end
+
   module MakeSelect (Sum : Signatures.Sum) = struct
     type 'a handler = { run : 'x. 'x Sum.wrapper -> 'x wrapper -> 'a }
 
@@ -163,4 +216,28 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
         sum
     ;;
   end
+end
+
+module Utils (Product : S) = struct
+  type 'r extractor = { extract : 'x. 'x Product.wrapper -> 'r }
+
+  let fold_left
+      (type r)
+      (extractor : r extractor)
+      (empty : r)
+      (combine : r -> r -> r)
+      values
+    =
+    let rec folder : type xs. r -> (xs, r) Product.folder =
+     fun accum ->
+       let on_nil _refl = accum in
+       let on_cons
+           : type y ys. (xs, y * ys) refl -> y Product.wrapper -> (ys, r) Product.folder
+         =
+        fun Refl value -> folder (combine accum (extractor.extract value))
+       in
+       { Product.on_nil; Product.on_cons }
+    in
+    Product.fold (folder empty) values
+  ;;
 end

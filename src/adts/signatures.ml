@@ -8,6 +8,14 @@ module type NatTrans = sig
   type 'a dest
 end
 
+module type Applicative = sig
+  type 'a t
+
+  val pure : 'a -> 'a t
+
+  val combine : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t
+end
+
 (** Sum type *)
 module type Sum = sig
   (** Wrapper type for elements in the sum *)
@@ -88,6 +96,18 @@ module type Product = sig
     type mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
 
     val map : mapper -> 'xs src -> 'xs dest
+  end
+
+  module MakeTraversal (Dest : ProductBase) (Effect : Applicative) : sig
+    type 'a src = 'a t
+
+    type 'a dest = 'a Dest.t
+
+    type 'a effect = 'a Effect.t
+
+    type mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper effect }
+
+    val traverse : mapper -> 'xs src -> 'xs dest effect
   end
 
   module MakeSelect (Sum : Sum) : sig
