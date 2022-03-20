@@ -45,14 +45,14 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
 
     type 'a dest = 'a Dest.t
 
-    type 'r handler = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
+    type 'r mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
 
-    let map handler value =
+    let map mapper value =
       let rec go : type xs r. xs t -> (xs Dest.t -> r) -> r =
        fun value k ->
          match value with
          | Nil -> k Dest.nil
-         | Cons (x, xs) -> go xs (fun xs -> k (Dest.cons (handler.run x) xs))
+         | Cons (x, xs) -> go xs (fun xs -> k (Dest.cons (mapper.run x) xs))
       in
       go value Fun.id
     ;;
@@ -129,11 +129,11 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
 
     type 'a dest = 'a Dest.t
 
-    type 'r handler = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
+    type 'r mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
 
-    let map handler values =
+    let map mapper values =
       Dest.Unsafe.of_any_array
-        (Array.map (fun (Any wrapper) -> Dest.Any (handler.run wrapper)) values)
+        (Array.map (fun (Any wrapper) -> Dest.Any (mapper.run wrapper)) values)
     ;;
   end
 

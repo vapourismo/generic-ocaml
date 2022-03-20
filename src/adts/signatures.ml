@@ -81,9 +81,9 @@ module type Product = sig
 
     type 'a dest = 'a Dest.t
 
-    type 'r handler = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
+    type 'r mapper = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
 
-    val map : 'a handler -> 'xs src -> 'xs dest
+    val map : 'a mapper -> 'xs src -> 'xs dest
   end
 
   module MakeSelect (Sum : Sum) : sig
