@@ -165,21 +165,25 @@ let product_select_tests =
 
 let product_fold_tests =
   product_tests
-  @@ fun (module P) ->
-  flavoured_test_case (module P) "fold" (test_product_fold (module P.Make))
+  @@ fun (module Product) ->
+  flavoured_test_case (module Product) "fold" (test_product_fold (module Product.Make))
 ;;
 
 let product_traverse_tests =
   product_tests
-  @@ fun (module P) ->
-  flavoured_test_case (module P) "traverse" (test_product_traverse (module P.Make))
+  @@ fun (module Product) ->
+  flavoured_test_case
+    (module Product)
+    "traverse"
+    (test_product_traverse (module Product.Make))
 ;;
 
 let product_tests = product_select_tests @ product_fold_tests @ product_traverse_tests
 
 let sum_tests =
   sum_tests
-  @@ fun (module S) -> flavoured_test_case (module S) "tag" (test_sum_tag (module S.Make))
+  @@ fun (module Sum) ->
+  flavoured_test_case (module Sum) "tag" (test_sum_tag (module Sum.Make))
 ;;
 
 let () = run "adts" [ "product", product_tests; "sum", sum_tests ]
