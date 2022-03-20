@@ -75,8 +75,7 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
   end
 end
 
-module MakeCompact (Wrapper : Wrappers.S) :
-  Signatures.Product with type 'a wrapper = 'a Wrapper.t = struct
+module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = struct
   type 'a wrapper = 'a Wrapper.t
 
   type any = Any : 'a wrapper -> any
@@ -107,4 +106,49 @@ module MakeCompact (Wrapper : Wrappers.S) :
      in
      go 0 folder
  ;;
+
+  module MakeNatTrans (Dest : Signatures.Product) = struct
+    type 'a src = 'a t
+
+    type 'a dest = 'a Dest.t
+
+    type 'r handler = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
+
+    let map handler values =
+      let length = Array.length values in
+      let rec go : type xs. int -> xs dest =
+       fun offset ->
+         if offset >= length
+         then Obj.magic Dest.nil
+         else (
+           let (Any wrapper) = Array.unsafe_get values offset in
+           let head = handler.run wrapper in
+           let tail = go (offset + 1) in
+           Obj.magic (Dest.cons head tail))
+      in
+      go 0
+    ;;
+  end
+
+  module MakeSelect (Sum : Signatures.Sum) = struct
+    type 'a handler = { run : 'x. 'x Sum.wrapper -> 'x wrapper -> 'a }
+
+    let make_folder (type r) (handler : r handler) values =
+      let rec go : type xs. int -> (xs, r) Sum.folder =
+       fun offset ->
+         let on_zero : type y ys. (xs, y * ys) refl -> y Sum.wrapper -> r =
+          fun Refl wrapper ->
+            let (Any x) = Array.unsafe_get values offset in
+            handler.run wrapper (Obj.magic x)
+         in
+         let on_succ : type y ys. (xs, y * ys) refl -> (ys, r) Sum.folder =
+          fun Refl -> go (offset + 1)
+         in
+         { Sum.on_zero; Sum.on_succ }
+      in
+      go 0
+    ;;
+
+    let select handler sum product = Sum.fold (make_folder handler product) sum
+  end
 end

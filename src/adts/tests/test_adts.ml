@@ -20,8 +20,31 @@ let test_compact_product_fold () =
   check int "sums must be equal" sum 154
 ;;
 
+let test_compact_product_select () =
+  let module P =
+    Product.MakeCompact (Adts.Wrappers.Const (struct
+      type t = int
+    end))
+  in
+  let module S = Sum.Make (Adts.Wrappers.Unit) in
+  let module Select = P.MakeSelect (S) in
+  let handler : int Select.handler =
+    let run : type x. x S.wrapper -> x P.wrapper -> int = fun () i -> i in
+    { run }
+  in
+  let product = P.(13 ** 37 ** 73 ** 31 ** nil) in
+  let sum = S.(zero ()) in
+  let value = Select.select handler sum product in
+  check int "sums must be equal" value 13;
+  let sum = S.(succ @@ succ @@ zero ()) in
+  let value = Select.select handler sum product in
+  check int "sums must be equal" value 73
+;;
+
 let compact_product_tests =
-  [ test_case "test_compact_fold" `Quick test_compact_product_fold ]
+  [ test_case "test_compact_fold" `Quick test_compact_product_fold
+  ; test_case "test_compact_select" `Quick test_compact_product_select
+  ]
 ;;
 
 let () = run "adts" [ "compact_product", compact_product_tests ]
