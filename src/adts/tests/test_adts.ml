@@ -17,7 +17,7 @@ let test_compact_product_fold () =
      { P.on_nil; P.on_cons }
   in
   let sum = P.fold (folder 0) value in
-  check int "sums must be equal" sum 154
+  check int "sums must be equal" 154 sum
 ;;
 
 let test_compact_product_select () =
@@ -35,10 +35,10 @@ let test_compact_product_select () =
   let product = P.(13 ** 37 ** 73 ** 31 ** nil) in
   let sum = S.(zero ()) in
   let value = Select.select handler sum product in
-  check int "must be equal" value 13;
+  check int "must be equal" 13 value;
   let sum = S.(succ @@ succ @@ zero ()) in
   let value = Select.select handler sum product in
-  check int "must be equal" value 73
+  check int "must be equal" 73 value
 ;;
 
 let compact_product_tests =
