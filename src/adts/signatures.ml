@@ -58,6 +58,12 @@ module type Product = sig
     }
 
   val fold : ('xs, 'r) folder -> 'xs t -> 'r
+
+  type any = Any : 'a wrapper -> any
+
+  module Unsafe : sig
+    val of_any_array : any array -> 'xs t
+  end
 end
 
 (** Maker of a Product module *)

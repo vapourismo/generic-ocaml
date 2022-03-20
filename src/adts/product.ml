@@ -27,6 +27,17 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
      | Cons (x, xs) -> fold (folder.on_cons Refl x) xs
  ;;
 
+  type any = Any : 'a wrapper -> any
+
+  module Unsafe = struct
+    let of_any_array values =
+      let result =
+        Array.fold_right (fun (Any l) r -> Obj.magic (cons l r)) values (Obj.magic Nil)
+      in
+      result
+    ;;
+  end
+
   module MakeNatTrans (Dest : Signatures.Product) = struct
     type 'a src = 'a t
 
@@ -107,6 +118,10 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
      go 0 folder
  ;;
 
+  module Unsafe = struct
+    let of_any_array xs = xs
+  end
+
   module MakeNatTrans (Dest : Signatures.Product) = struct
     type 'a src = 'a t
 
@@ -115,18 +130,8 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
     type 'r handler = { run : 'x. 'x wrapper -> 'x Dest.wrapper }
 
     let map handler values =
-      let length = Array.length values in
-      let rec go : type xs. int -> xs dest =
-       fun offset ->
-         if offset >= length
-         then Obj.magic Dest.nil
-         else (
-           let (Any wrapper) = Array.unsafe_get values offset in
-           let head = handler.run wrapper in
-           let tail = go (offset + 1) in
-           Obj.magic (Dest.cons head tail))
-      in
-      go 0
+      Dest.Unsafe.of_any_array
+        (Array.map (fun (Any wrapper) -> Dest.Any (handler.run wrapper)) values)
     ;;
   end
 
