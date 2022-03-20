@@ -51,6 +51,13 @@ module type Product = sig
   val cons : 'a wrapper -> 'b t -> ('a * 'b) t
 
   val ( ** ) : 'a wrapper -> 'b t -> ('a * 'b) t
+
+  type ('xs, 'r) folder =
+    { on_nil : ('xs, void) refl -> 'r
+    ; on_cons : 'y 'ys. ('xs, 'y * 'ys) refl -> 'y wrapper -> ('ys, 'r) folder
+    }
+
+  val fold : ('xs, 'r) folder -> 'xs t -> 'r
 end
 
 (** Maker of a Product module *)

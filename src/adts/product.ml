@@ -15,6 +15,18 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
 
   let ( ** ) x xs = cons x xs
 
+  type ('xs, 'r) folder =
+    { on_nil : ('xs, void) refl -> 'r
+    ; on_cons : 'y 'ys. ('xs, 'y * 'ys) refl -> 'y wrapper -> ('ys, 'r) folder
+    }
+
+  let rec fold : type xs r. (xs, r) folder -> xs t -> r =
+   fun folder value ->
+     match value with
+     | Nil -> folder.on_nil Refl
+     | Cons (x, xs) -> fold (folder.on_cons Refl x) xs
+ ;;
+
   module MakeNatTrans (Dest : Signatures.Product) = struct
     type 'a src = 'a t
 
