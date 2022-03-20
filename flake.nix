@@ -40,6 +40,7 @@
           utop
           nixpkgs-fmt
           inotify-tools
+          odoc
         ];
 
         buildInputs = self.defaultPackage.${system}.buildInputs;
