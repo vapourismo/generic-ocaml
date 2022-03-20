@@ -35,10 +35,10 @@ let test_compact_product_select () =
   let product = P.(13 ** 37 ** 73 ** 31 ** nil) in
   let sum = S.(zero ()) in
   let value = Select.select handler sum product in
-  check int "sums must be equal" value 13;
+  check int "must be equal" value 13;
   let sum = S.(succ @@ succ @@ zero ()) in
   let value = Select.select handler sum product in
-  check int "sums must be equal" value 73
+  check int "must be equal" value 73
 ;;
 
 let compact_product_tests =
