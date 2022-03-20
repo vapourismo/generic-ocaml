@@ -138,22 +138,11 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
   module MakeSelect (Sum : Signatures.Sum) = struct
     type 'a handler = { run : 'x. 'x Sum.wrapper -> 'x wrapper -> 'a }
 
-    let make_folder (type r) (handler : r handler) values =
-      let rec go : type xs. int -> (xs, r) Sum.folder =
-       fun offset ->
-         let on_zero : type y ys. (xs, y * ys) refl -> y Sum.wrapper -> r =
-          fun Refl wrapper ->
-            let (Any x) = Array.unsafe_get values offset in
-            handler.run wrapper (Obj.magic x)
-         in
-         let on_succ : type y ys. (xs, y * ys) refl -> (ys, r) Sum.folder =
-          fun Refl -> go (offset + 1)
-         in
-         { Sum.on_zero; Sum.on_succ }
-      in
-      go 0
+    let select handler sum product =
+      let (Any prod_wrapper) = Array.unsafe_get product (Sum.tag sum) in
+      Sum.unpack
+        { unpack = (fun sum_wrapper -> handler.run sum_wrapper (Obj.magic prod_wrapper)) }
+        sum
     ;;
-
-    let select handler sum product = Sum.fold (make_folder handler product) sum
   end
 end

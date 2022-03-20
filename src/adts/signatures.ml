@@ -32,6 +32,8 @@ module type Sum = sig
     }
 
   val fold : ('xs, 'r) folder -> 'xs t -> 'r
+
+  val tag : 'xs t -> int
 end
 
 (** Maker of a Sum module *)

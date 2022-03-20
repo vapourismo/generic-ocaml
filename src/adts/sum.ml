@@ -38,4 +38,14 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
      | Zero x -> folder.on_zero Refl x
      | Succ x -> fold (folder.on_succ Refl) x
  ;;
+
+  let tag value =
+    let rec go : type xs. int -> xs t -> int =
+     fun acc value ->
+       match value with
+       | Zero _ -> acc
+       | Succ tail -> go (acc + 1) tail
+    in
+    go 0 value
+  ;;
 end
