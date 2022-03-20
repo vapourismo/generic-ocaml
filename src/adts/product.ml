@@ -75,7 +75,7 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
   end
 end
 
-module MakeFast (Wrapper : Wrappers.S) :
+module MakeCompact (Wrapper : Wrappers.S) :
   Signatures.Product with type 'a wrapper = 'a Wrapper.t = struct
   type 'a wrapper = 'a Wrapper.t
 

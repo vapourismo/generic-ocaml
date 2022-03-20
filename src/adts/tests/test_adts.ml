@@ -1,9 +1,9 @@
 open Alcotest
 open Adts
 
-let test_fast_product_fold () =
+let test_compact_product_fold () =
   let module P =
-    Product.MakeFast (Adts.Wrappers.Const (struct
+    Product.MakeCompact (Adts.Wrappers.Const (struct
       type t = int
     end))
   in
@@ -20,6 +20,8 @@ let test_fast_product_fold () =
   check int "sums must be equal" sum 154
 ;;
 
-let fast_product_tests = [ test_case "test_fast_fold" `Quick test_fast_product_fold ]
+let compact_product_tests =
+  [ test_case "test_compact_fold" `Quick test_compact_product_fold ]
+;;
 
-let () = run "adts" [ "fast_product", fast_product_tests ]
+let () = run "adts" [ "compact_product", compact_product_tests ]
