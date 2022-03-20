@@ -23,3 +23,9 @@ module To (T : sig
 end) : S with type 'a t = 'a -> T.t = struct
   type 'a t = 'a -> T.t
 end
+
+module Const (T : sig
+  type t
+end) : S with type 'a t = T.t = struct
+  type 'a t = T.t
+end

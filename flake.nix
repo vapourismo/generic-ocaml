@@ -28,6 +28,12 @@
         buildInputs = with ocamlPackages; [
           ppxlib
         ];
+
+        doCheck = true;
+
+        checkInputs = with ocamlPackages; [
+          alcotest
+        ];
       };
 
       devShell = mkShell {
@@ -43,7 +49,9 @@
           odoc
         ];
 
-        buildInputs = self.defaultPackage.${system}.buildInputs;
+        buildInputs =
+          self.defaultPackage.${system}.buildInputs
+          ++ self.defaultPackage.${system}.nativeBuildInputs;
       };
     }
   );
