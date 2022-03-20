@@ -1,11 +1,5 @@
 open Utils
 
-(**
-  Natural transformation shape
-
-  Modules of this type determine the [src] and [dest] for a natural transformation
-  ['x. 'x src -> 'x dest].
-*)
 module type NatTrans = sig
   (** Source functor *)
   type 'a src

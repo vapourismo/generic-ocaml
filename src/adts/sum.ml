@@ -1,7 +1,8 @@
 open Utils
 
-module Make (Wrapper : Wrappers.S) : Signatures.Sum with type 'a wrapper = 'a Wrapper.t =
-struct
+module type S = Signatures.Sum
+
+module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = struct
   type 'a wrapper = 'a Wrapper.t
 
   type _ t =
