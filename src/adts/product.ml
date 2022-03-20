@@ -78,7 +78,7 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
             We could prove this to the compiler by only accepting [('z * 'zs) t] products.
             However, this only works for the top call because we have to prove this inductively
             given this function is recursive.
-         *)
+           *)
            failwith "Select with empty sum!"
       in
       go
