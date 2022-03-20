@@ -2,6 +2,8 @@ open Utils
 
 module type S = Signatures.ProductExt
 
+module type Maker = Signatures.ProductExtMaker
+
 module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = struct
   type 'a wrapper = 'a Wrapper.t
 
