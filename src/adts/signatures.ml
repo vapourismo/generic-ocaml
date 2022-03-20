@@ -122,7 +122,7 @@ module type ProductMaker = functor (Wrapper : Wrappers.S) ->
   Product with type 'a wrapper = 'a Wrapper.t
 
 (** Abstract data type (sum of products) *)
-module type ADT = sig
+module type Adt = sig
   type 'a field
 
   module Constructor : Product with type 'a wrapper = 'a field
@@ -131,4 +131,4 @@ module type ADT = sig
 end
 
 (** Maker of an ADT module *)
-module type ADTMaker = functor (Field : Wrappers.S) -> ADT with type 'a field = 'a Field.t
+module type AdtMaker = functor (Field : Wrappers.S) -> Adt with type 'a field = 'a Field.t

@@ -1,6 +1,6 @@
-module type S = Signatures.ADT
+module type S = Signatures.Adt
 
-module type Maker = Signatures.ADTMaker
+module type Maker = Signatures.AdtMaker
 
 module Make : Maker
 

@@ -1,6 +1,6 @@
-module type S = Signatures.ADT
+module type S = Signatures.Adt
 
-module type Maker = Signatures.ADTMaker
+module type Maker = Signatures.AdtMaker
 
 module Make (Field : Wrappers.S) : S with type 'a field = 'a Field.t = struct
   type 'a field = 'a Field.t
