@@ -29,6 +29,18 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
      | Cons (x, xs) -> fold (folder.on_cons Refl x) xs
  ;;
 
+  type mapper = { run : 'x. 'x wrapper -> 'x wrapper }
+
+  let map mapper values =
+    let rec go : type xs r. xs t -> (xs t -> r) -> r =
+     fun values k ->
+       match values with
+       | Nil -> k Nil
+       | Cons (x, xs) -> go xs (fun xs -> k (Cons (mapper.run x, xs)))
+    in
+    go values Fun.id
+  ;;
+
   type any = Any : 'a wrapper -> any
 
   module Unsafe = struct
@@ -119,6 +131,10 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
      in
      go 0 folder
  ;;
+
+  type mapper = { run : 'x. 'x wrapper -> 'x wrapper }
+
+  let map mapper values = Array.map (fun (Any wrapper) -> Any (mapper.run wrapper)) values
 
   module Unsafe = struct
     let of_any_array xs = xs

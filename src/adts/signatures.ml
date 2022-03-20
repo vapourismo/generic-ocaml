@@ -61,6 +61,10 @@ module type ProductBase = sig
 
   val fold : ('xs, 'r) folder -> 'xs t -> 'r
 
+  type mapper = { run : 'x. 'x wrapper -> 'x wrapper }
+
+  val map : mapper -> 'xs t -> 'xs t
+
   type any = Any : 'a wrapper -> any
 
   module Unsafe : sig
