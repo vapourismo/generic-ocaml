@@ -96,3 +96,15 @@ end
 (** Maker of an extended Product module *)
 module type ProductExtMaker = functor (Wrapper : Wrappers.S) ->
   ProductExt with type 'a wrapper = 'a Wrapper.t
+
+(** Abstract data type (sum of products) *)
+module type ADT = sig
+  type 'a field
+
+  module Constructor : ProductExt with type 'a wrapper = 'a field
+
+  include Sum with type 'a wrapper = 'a Constructor.t
+end
+
+(** Maker of an ADT module *)
+module type ADTMaker = functor (Field : Wrappers.S) -> ADT with type 'a field = 'a Field.t

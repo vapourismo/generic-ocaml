@@ -1,5 +1,6 @@
 module Product = Product
 module Sum = Sum
+module ADT = Adt
 module Wrappers = Wrappers
 
 (**
