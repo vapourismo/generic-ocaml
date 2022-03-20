@@ -1,8 +1,8 @@
 open Utils
 
-module type S = Signatures.ProductExt
+module type S = Signatures.Product
 
-module type Maker = Signatures.ProductExtMaker
+module type Maker = Signatures.ProductMaker
 
 module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = struct
   type 'a wrapper = 'a Wrapper.t
@@ -40,7 +40,7 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
     ;;
   end
 
-  module MakeNatTrans (Dest : Signatures.Product) = struct
+  module MakeNatTrans (Dest : Signatures.ProductBase) = struct
     type 'a src = 'a t
 
     type 'a dest = 'a Dest.t
@@ -124,7 +124,7 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
     let of_any_array xs = xs
   end
 
-  module MakeNatTrans (Dest : Signatures.Product) = struct
+  module MakeNatTrans (Dest : Signatures.ProductBase) = struct
     type 'a src = 'a t
 
     type 'a dest = 'a Dest.t

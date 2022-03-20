@@ -40,8 +40,8 @@ end
 module type SumMaker = functor (Wrapper : Wrappers.S) ->
   Sum with type 'a wrapper = 'a Wrapper.t
 
-(** Product type *)
-module type Product = sig
+(** ProductBase type *)
+module type ProductBase = sig
   (** Wrapper type for elements in the product *)
   type _ wrapper
 
@@ -68,15 +68,15 @@ module type Product = sig
   end
 end
 
-(** Maker of a Product module *)
-module type ProductMaker = functor (Wrapper : Wrappers.S) ->
-  Product with type 'a wrapper = 'a Wrapper.t
+(** Maker of a ProductBase module *)
+module type ProductBaseMaker = functor (Wrapper : Wrappers.S) ->
+  ProductBase with type 'a wrapper = 'a Wrapper.t
 
-(** Extended Product type *)
-module type ProductExt = sig
-  include Product
+(** Product type *)
+module type Product = sig
+  include ProductBase
 
-  module MakeNatTrans (Dest : Product) : sig
+  module MakeNatTrans (Dest : ProductBase) : sig
     type 'a src = 'a t
 
     type 'a dest = 'a Dest.t
@@ -93,15 +93,15 @@ module type ProductExt = sig
   end
 end
 
-(** Maker of an extended Product module *)
-module type ProductExtMaker = functor (Wrapper : Wrappers.S) ->
-  ProductExt with type 'a wrapper = 'a Wrapper.t
+(** Maker of a Product module *)
+module type ProductMaker = functor (Wrapper : Wrappers.S) ->
+  Product with type 'a wrapper = 'a Wrapper.t
 
 (** Abstract data type (sum of products) *)
 module type ADT = sig
   type 'a field
 
-  module Constructor : ProductExt with type 'a wrapper = 'a field
+  module Constructor : Product with type 'a wrapper = 'a field
 
   include Sum with type 'a wrapper = 'a Constructor.t
 end

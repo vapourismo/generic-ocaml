@@ -1,6 +1,6 @@
-module type S = Signatures.ProductExt
+module type S = Signatures.Product
 
-module type Maker = Signatures.ProductExtMaker
+module type Maker = Signatures.ProductMaker
 
 module Make : Maker
 
