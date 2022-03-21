@@ -127,8 +127,11 @@ module type Adt = sig
 
   module Constructor : Product with type 'a wrapper = 'a field
 
-  include Sum with type 'a wrapper = 'a Constructor.t
+  type 'a constructor
+
+  include Sum with type 'a wrapper = 'a Constructor.t constructor
 end
 
 (** Maker of an ADT module *)
-module type AdtMaker = functor (Field : Wrappers.S) -> Adt with type 'a field = 'a Field.t
+module type AdtMaker = functor (Constructor : Wrappers.S) (Field : Wrappers.S) ->
+  Adt with type 'a field = 'a Field.t and type 'a constructor = 'a Constructor.t

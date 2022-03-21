@@ -2,16 +2,32 @@ module type S = Signatures.Adt
 
 module type Maker = Signatures.AdtMaker
 
-module Make (Field : Wrappers.S) : S with type 'a field = 'a Field.t = struct
-  type 'a field = 'a Field.t
+module Make (ConstructorWrapper : Wrappers.S) (FieldWrapper : Wrappers.S) :
+  S
+    with type 'a field = 'a FieldWrapper.t
+     and type 'a constructor = 'a ConstructorWrapper.t = struct
+  type 'a field = 'a FieldWrapper.t
 
-  module Constructor = Product.Make (Field)
-  include Sum.Make (Constructor)
+  module Constructor = Product.Make (FieldWrapper)
+
+  type 'a constructor = 'a ConstructorWrapper.t
+
+  include Sum.Make (struct
+    type 'a t = 'a Constructor.t constructor
+  end)
 end
 
-module MakeCompact (Field : Wrappers.S) : S with type 'a field = 'a Field.t = struct
-  type 'a field = 'a Field.t
+module MakeCompact (ConstructorWrapper : Wrappers.S) (FieldWrapper : Wrappers.S) :
+  S
+    with type 'a field = 'a FieldWrapper.t
+     and type 'a constructor = 'a ConstructorWrapper.t = struct
+  type 'a field = 'a FieldWrapper.t
 
-  module Constructor = Product.MakeCompact (Field)
-  include Sum.MakeCompact (Constructor)
+  module Constructor = Product.MakeCompact (FieldWrapper)
+
+  type 'a constructor = 'a ConstructorWrapper.t
+
+  include Sum.MakeCompact (struct
+    type 'a t = 'a Constructor.t constructor
+  end)
 end
