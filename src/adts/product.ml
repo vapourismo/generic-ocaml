@@ -17,6 +17,10 @@ module Make (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.t = str
 
   let ( ** ) x xs = cons x xs
 
+  let head : type x xs. (x * xs) t -> x wrapper = fun (Cons (x, _)) -> x
+
+  let tail : type x xs. (x * xs) t -> xs t = fun (Cons (_, xs)) -> xs
+
   type ('xs, 'r) folder =
     { on_nil : ('xs, void) refl -> 'r
     ; on_cons : 'y 'ys. ('xs, 'y * 'ys) refl -> 'y wrapper -> ('ys, 'r) folder
@@ -131,6 +135,16 @@ module MakeCompact (Wrapper : Wrappers.S) : S with type 'a wrapper = 'a Wrapper.
   let cons x xs = Array.append (Array.make 1 (Any x)) xs
 
   let ( ** ) = cons
+
+  let head : ('x * 'xs) t -> 'x wrapper =
+   fun values ->
+     let (Any x) = Array.unsafe_get values 0 in
+     Obj.magic x
+ ;;
+
+  let tail : ('x * 'xs) t -> 'xs t =
+   fun values -> Array.sub values 1 (Array.length values - 1)
+ ;;
 
   type ('xs, 'r) folder =
     { on_nil : ('xs, void) refl -> 'r

@@ -62,6 +62,10 @@ module type ProductBase = sig
 
   val ( ** ) : 'a wrapper -> 'b t -> ('a * 'b) t
 
+  val head : ('x * _) t -> 'x wrapper
+
+  val tail : (_ * 'xs) t -> 'xs t
+
   type ('xs, 'r) folder =
     { on_nil : ('xs, void) refl -> 'r
     ; on_cons : 'y 'ys. ('xs, 'y * 'ys) refl -> 'y wrapper -> ('ys, 'r) folder
